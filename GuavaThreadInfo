@@ -1,0 +1,180 @@
+import com.google.common.util.concurrent.*;
+
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
+import java.util.concurrent.*;
+
+public class FirstProgram {
+  
+
+  @SuppressWarnings("deprecation")
+public static void main(String[] args){
+    System.out.println("This is my first program in java");
+    
+    int coreCount = Runtime.getRuntime().availableProcessors();
+ExecutorService service = Executors.newFixedThreadPool(coreCount);   
+
+ListenableFuture<ListenableFuture<Integer>> result = null;
+
+ListeningExecutorService lservice = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(10));
+     //Thread thread1= new Thread(new Task());
+     //thread1.start();
+     //ListenableFuture<Integer> future = getFuture();
+   
+		/*
+		 * ListenableFuture<Integer> lfuture = lservice.submit( new Callable<Integer>()
+		 * {
+		 * 
+		 * @Override public Integer call() throws Exception { // TODO Auto-generated
+		 * method stub try{ Thread.sleep(10000);} catch(Exception e){} return 15; }
+		 * 
+		 * } );
+		 * 
+		 * Futures.addCallback(lfuture, new FutureCallback<Integer>() {
+		 * 
+		 * @Override public void onFailure(Throwable arg0) { // TODO Auto-generated
+		 * method stub
+		 * 
+		 * }
+		 * 
+		 * @Override public void onSuccess(Integer arg0) {
+		 * System.out.println("onSuccess"+arg0);
+		 * 
+		 * } },lservice);
+		 */
+      
+      
+      result = lservice.submit(new Callable<ListenableFuture<Integer>>() {
+
+		@Override
+		public ListenableFuture<Integer> call() throws Exception {
+			System.out.println("Aniket call");
+			SettableFuture<Integer> lfuture = SettableFuture.create();
+			//lfuture.set(13);
+			return lfuture;
+		}
+	});
+      
+      Futures.addCallback(result, new FutureCallback<ListenableFuture<Integer>>() {
+
+		@Override
+		public void onFailure(Throwable arg0) {
+			// TODO Auto-generated method stub
+			System.out.println("1---onFailure");
+			
+			
+		}
+
+		@Override
+		public void onSuccess(ListenableFuture<Integer> arg0) {
+			System.out.println("1---onSuccess");
+			Futures.addCallback(arg0, new FutureCallback<Integer>() {
+
+				@Override
+				public void onFailure(Throwable arg0) {
+					// TODO Auto-generated method stub
+					System.out.println("2---onFailure");
+					
+				}
+
+				@Override
+				public void onSuccess(Integer arg0) {
+					// TODO Auto-generated method stub
+					System.out.println("Aniket onSuccess"+arg0);
+					
+				}
+			},lservice);
+			
+		}
+	},lservice);
+      
+      System.out.println("Unrelated operation complete");
+
+     try{ 
+     //Integer result = (Integer) future.get(); //blocking call
+     //System.out.println("result : "+result);
+     }catch(Exception e){}
+     //System.out.println("After Thread Exec complete");
+
+  }//End of main
+
+  
+  public static void SetFuture() {
+	  
+  }
+  
+   static class Task implements Callable<Integer>{
+    public Integer call(){
+     System.out.println("Thread Name : " + Thread.currentThread().getName());
+     try{
+     Thread.sleep(10000);}
+     catch(Exception e){}
+     return 11;
+    }
+   }
+
+   public static class Task2 implements Callable<ListenableFuture<Integer>>{
+
+	@Override
+	public ListenableFuture<Integer> call() throws Exception {
+	
+		 System.out.println("Task 2 IN getFuture()");
+	     SettableFuture<Integer> future = SettableFuture.create();
+	     try{
+	     Thread.sleep(10000);}
+	     catch(Exception e){}
+	     Integer result = 14;
+	     future.set(result);
+	     return future;
+	}
+
+	
+	public static  class Task4 implements Callable<ListenableFuture<Integer>>{
+
+		@Override
+		public ListenableFuture<Integer> call() throws Exception {
+			SettableFuture<Integer> lfuture = SettableFuture.create();
+			return lfuture;
+		}
+		
+	}
+
+	public class Task3 implements Callable<Integer>{
+
+		@Override
+		public Integer call() throws Exception {
+			 System.out.println("Task 3 IN getFuture()");
+		     SettableFuture<Integer> future = SettableFuture.create();
+		     try{
+		     Thread.sleep(10000);}
+		     catch(Exception e){}
+		     Integer result = 19;
+		     //future.set(result);
+			 return future.get();
+		}
+		
+	}
+	   
+   }
+   
+  public static ListenableFuture<Integer> getFuture(){
+	 System.out.println("IN getFuture()");
+     SettableFuture<Integer> future = SettableFuture.create();
+     try{
+     Thread.sleep(10000);}
+     catch(Exception e){}
+     Integer result = 14;
+     future.set(result);
+     return future;
+   }
+
+    private static void methodToTime() {
+    try {
+      TimeUnit.SECONDS.sleep(3);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+    
+}//End of FirstJavaProgram Class
